@@ -90,7 +90,7 @@ def get_base_url():
     if env_url:
         return env_url.rstrip('/')
     # 云端部署：从请求上下文自动获取
-    if os.environ.get('RENDER'):
+    if os.environ.get('RENDER') or os.environ.get('PORT'):
         try:
             from flask import request as req
             if req:
