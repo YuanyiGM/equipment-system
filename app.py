@@ -89,6 +89,14 @@ def get_base_url():
     env_url = os.environ.get('BASE_URL', '').strip()
     if env_url:
         return env_url.rstrip('/')
+    # 云端部署：从请求上下文自动获取
+    if os.environ.get('RENDER'):
+        try:
+            from flask import request as req
+            if req:
+                return req.host_url.rstrip('/')
+        except Exception:
+            pass
     # 本地部署：读配置文件
     config = load_config()
     base_url = config.get('base_url', '').strip()
