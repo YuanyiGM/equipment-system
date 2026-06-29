@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if device %}编辑设备{% else %}添加设备{% endif %} - 设备借还登记系统</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="admin-page">
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon">&#x1f4e6;</span>
+                <span>设备管理系统</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/admin" class="nav-item">
+                    <span class="nav-icon">&#x1f3e0;</span> 控制台
+                </a>
+                <a href="/admin/devices" class="nav-item active">
+                    <span class="nav-icon">&#x1f4bb;</span> 设备管理
+                </a>
+                <a href="/admin/records" class="nav-item">
+                    <span class="nav-icon">&#x1f4cb;</span> 借还记录
+                </a>
+                <a href="/admin/logout" class="nav-item nav-logout">
+                    <span class="nav-icon">&#x1f6aa;</span> 退出登录
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <h2>{% if device %}编辑设备{% else %}添加设备{% endif %}</h2>
+                <a href="/admin/devices" class="btn btn-outline">返回列表</a>
+            </header>
+
+            <div class="content-area">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <div class="form-panel">
+                    <form method="POST" class="device-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">设备名称 <span class="required">*</span></label>
+                                <input type="text" id="name" name="name" value="{{ device.name if device else '' }}" placeholder="例如：ThinkPad X1 Carbon" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="code">设备编号</label>
+                                <input type="text" id="code" name="code" value="{{ device.code if device else '' }}" placeholder="留空自动生成">
+                                <small>编号唯一，用于生成二维码。留空则自动生成</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="department">所属部门</label>
+                                <input type="text" id="department" name="department" value="{{ device.department if device else '' }}" placeholder="例如：技术部">
+                            </div>
+                            <div class="form-group">
+                                <label for="purchase_date">购买日期</label>
+                                <input type="date" id="purchase_date" name="purchase_date" value="{{ device.purchase_date if device else '' }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">备注说明</label>
+                            <textarea id="description" name="description" rows="3" placeholder="设备配置、使用说明等备注信息">{{ device.description if device else '' }}</textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                {% if device %}保存修改{% else %}添加设备并生成二维码{% endif %}
+                            </button>
+                            <a href="/admin/devices" class="btn btn-ghost">取消</a>
+                        </div>
+                    </form>
+                </div>
+
+                {% if device %}
+                <div class="info-box">
+                    <strong>&#x1f4e1; 设备二维码</strong>
+                    <p>设备编号 <code>{{ device.code }}</code> 的二维码如下图。请将二维码贴在设备上，借用人扫码即可登记借还。</p>
+                    <div class="qr-preview">
+                        <img src="/qrcodes/{{ device.code }}.png" alt="设备二维码" class="qr-image">
+                    </div>
+                    <a href="/admin/devices/qrcode/{{ device.code }}" class="btn btn-outline">&#x1f4e5; 下载二维码</a>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

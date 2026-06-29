@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>控制台 - 设备借还登记系统</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="admin-page">
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon">&#x1f4e6;</span>
+                <span>设备管理系统</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/admin" class="nav-item active">
+                    <span class="nav-icon">&#x1f3e0;</span> 控制台
+                </a>
+                <a href="/admin/devices" class="nav-item">
+                    <span class="nav-icon">&#x1f4bb;</span> 设备管理
+                </a>
+                <a href="/admin/records" class="nav-item">
+                    <span class="nav-icon">&#x1f4cb;</span> 借还记录
+                </a>
+                <a href="/admin/logout" class="nav-item nav-logout">
+                    <span class="nav-icon">&#x1f6aa;</span> 退出登录
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <h2>控制台</h2>
+                <span class="topbar-user">管理员: {{ session.get('admin_username', 'admin') }}</span>
+            </header>
+
+            <div class="content-area">
+                <div class="stats-grid">
+                    <div class="stat-card stat-total">
+                        <div class="stat-number">{{ total }}</div>
+                        <div class="stat-label">设备总数</div>
+                    </div>
+                    <div class="stat-card stat-available">
+                        <div class="stat-number">{{ available }}</div>
+                        <div class="stat-label">在库设备</div>
+                    </div>
+                    <div class="stat-card stat-borrowed">
+                        <div class="stat-number">{{ borrowed }}</div>
+                        <div class="stat-label">借出设备</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>最近添加的设备</h3>
+                        <a href="/admin/devices" class="btn btn-sm btn-outline">查看全部</a>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>设备名称</th>
+                                    <th>设备编号</th>
+                                    <th>所属部门</th>
+                                    <th>状态</th>
+                                    <th>添加时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for d in devices[:5] %}
+                                <tr>
+                                    <td><strong>{{ d.name }}</strong></td>
+                                    <td><code>{{ d.code }}</code></td>
+                                    <td>{{ d.department or '-' }}</td>
+                                    <td><span class="badge badge-{{ 'success' if d.status == '在库' else 'warning' }}">{{ d.status }}</span></td>
+                                    <td>{{ d.created_at }}</td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="5" class="empty-cell">暂无设备，请先添加</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>最近借还记录</h3>
+                        <a href="/admin/records" class="btn btn-sm btn-outline">查看全部</a>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>设备</th>
+                                    <th>借用人</th>
+                                    <th>部门</th>
+                                    <th>借出时间</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in records %}
+                                <tr>
+                                    <td><strong>{{ r.device_name }}</strong> <small>{{ r.device_code }}</small></td>
+                                    <td>{{ r.borrower_name }}</td>
+                                    <td>{{ r.borrower_dept }}</td>
+                                    <td>{{ r.borrow_time }}</td>
+                                    <td><span class="badge badge-{{ 'success' if r.status == '已还' else 'warning' }}">{{ r.status }}</span></td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="5" class="empty-cell">暂无记录</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

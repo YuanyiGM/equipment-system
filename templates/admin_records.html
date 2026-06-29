@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>借还记录 - 设备借还登记系统</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="admin-page">
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon">&#x1f4e6;</span>
+                <span>设备管理系统</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/admin" class="nav-item">
+                    <span class="nav-icon">&#x1f3e0;</span> 控制台
+                </a>
+                <a href="/admin/devices" class="nav-item">
+                    <span class="nav-icon">&#x1f4bb;</span> 设备管理
+                </a>
+                <a href="/admin/records" class="nav-item active">
+                    <span class="nav-icon">&#x1f4cb;</span> 借还记录
+                </a>
+                <a href="/admin/logout" class="nav-item nav-logout">
+                    <span class="nav-icon">&#x1f6aa;</span> 退出登录
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <h2>借还记录</h2>
+            </header>
+
+            <div class="content-area">
+                <div class="filter-bar">
+                    <form method="GET" class="filter-form">
+                        <input type="text" name="search" placeholder="搜索借用人、设备名、归还码..." value="{{ search }}">
+                        <select name="status">
+                            <option value="">全部状态</option>
+                            <option value="借出" {% if status_filter == '借出' %}selected{% endif %}>借出中</option>
+                            <option value="已还" {% if status_filter == '已还' %}selected{% endif %}>已归还</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-outline">筛选</button>
+                        <a href="/admin/records" class="btn btn-sm btn-ghost">重置</a>
+                    </form>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>设备名称</th>
+                                <th>设备编号</th>
+                                <th>借用人</th>
+                                <th>部门</th>
+                                <th>联系方式</th>
+                                <th>归还码</th>
+                                <th>借出时间</th>
+                                <th>归还时间</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in records %}
+                            <tr>
+                                <td><strong>{{ r.device_name }}</strong></td>
+                                <td><code>{{ r.device_code }}</code></td>
+                                <td>{{ r.borrower_name }}</td>
+                                <td>{{ r.borrower_dept }}</td>
+                                <td>{{ r.borrower_phone }}</td>
+                                <td><code class="return-code">{{ r.return_code }}</code></td>
+                                <td>{{ r.borrow_time }}</td>
+                                <td>{{ r.return_time or '-' }}</td>
+                                <td><span class="badge badge-{{ 'success' if r.status == '已还' else 'warning' }}">{{ r.status }}</span></td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="9" class="empty-cell">暂无记录</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

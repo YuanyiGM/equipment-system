@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备管理 - 设备借还登记系统</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="admin-page">
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon">&#x1f4e6;</span>
+                <span>设备管理系统</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/admin" class="nav-item">
+                    <span class="nav-icon">&#x1f3e0;</span> 控制台
+                </a>
+                <a href="/admin/devices" class="nav-item active">
+                    <span class="nav-icon">&#x1f4bb;</span> 设备管理
+                </a>
+                <a href="/admin/records" class="nav-item">
+                    <span class="nav-icon">&#x1f4cb;</span> 借还记录
+                </a>
+                <a href="/admin/logout" class="nav-item nav-logout">
+                    <span class="nav-icon">&#x1f6aa;</span> 退出登录
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <h2>设备管理</h2>
+                <a href="/admin/devices/add" class="btn btn-primary">+ 添加设备</a>
+            </header>
+
+            <div class="content-area">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <div class="filter-bar">
+                    <form method="GET" class="filter-form">
+                        <input type="text" name="search" placeholder="搜索设备名称、编号、部门..." value="{{ search }}">
+                        <select name="status">
+                            <option value="">全部状态</option>
+                            <option value="在库" {% if status_filter == '在库' %}selected{% endif %}>在库</option>
+                            <option value="借出" {% if status_filter == '借出' %}selected{% endif %}>借出</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-outline">筛选</button>
+                        <a href="/admin/devices" class="btn btn-sm btn-ghost">重置</a>
+                    </form>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>设备名称</th>
+                                <th>设备编号</th>
+                                <th>所属部门</th>
+                                <th>购买日期</th>
+                                <th>状态</th>
+                                <th>添加时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in devices %}
+                            <tr>
+                                <td><strong>{{ d.name }}</strong></td>
+                                <td><code>{{ d.code }}</code></td>
+                                <td>{{ d.department or '-' }}</td>
+                                <td>{{ d.purchase_date or '-' }}</td>
+                                <td><span class="badge badge-{{ 'success' if d.status == '在库' else 'warning' }}">{{ d.status }}</span></td>
+                                <td>{{ d.created_at }}</td>
+                                <td class="action-cell">
+                                    <a href="/admin/devices/edit/{{ d.id }}" class="btn btn-sm btn-outline">编辑</a>
+                                    <a href="/admin/devices/qrcode/{{ d.code }}" class="btn btn-sm btn-outline" title="下载二维码">&#x1f4e5; 二维码</a>
+                                    {% if d.status == '在库' %}
+                                    <form method="POST" action="/admin/devices/delete/{{ d.id }}" class="inline-form" onsubmit="return confirm('确定要删除设备 {{ d.name }} 吗？此操作不可恢复。')">
+                                        <button type="submit" class="btn btn-sm btn-danger">删除</button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="7" class="empty-cell">暂无设备，<a href="/admin/devices/add">立即添加</a></td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
